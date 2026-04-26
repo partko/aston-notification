@@ -1,0 +1,23 @@
+spring:
+  mail:
+    host: localhost
+    port: 1025
+    username: test@example.com
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+app:
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: notification-service-group
+      user-events-topic: user-events
+      auto-offset-reset: earliest
+
+server:
+  port: 8082

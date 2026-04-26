@@ -8,6 +8,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +19,9 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
 public class UserEntity {
 
     @Id
@@ -35,9 +41,6 @@ public class UserEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public UserEntity() {
-    }
-
     public UserEntity(String name, String email, Integer age) {
         this.name = name;
         this.email = email;
@@ -52,96 +55,6 @@ public class UserEntity {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
-    }
-
-    /**
-     * Возвращает идентификатор пользователя.
-     *
-     * @return идентификатор пользователя
-     */
-    public Long getId() {
-        return id;
-    }
-
-    /**
-     * Устанавливает идентификатор пользователя.
-     *
-     * @param id идентификатор пользователя
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    /**
-     * Возвращает имя пользователя.
-     *
-     * @return имя пользователя
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Устанавливает имя пользователя.
-     *
-     * @param name имя пользователя
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Возвращает email пользователя.
-     *
-     * @return email пользователя
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * Устанавливает email пользователя.
-     *
-     * @param email email пользователя
-     */
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    /**
-     * Возвращает возраст пользователя.
-     *
-     * @return возраст пользователя
-     */
-    public Integer getAge() {
-        return age;
-    }
-
-    /**
-     * Устанавливает возраст пользователя.
-     *
-     * @param age возраст пользователя
-     */
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
-    /**
-     * Возвращает дату создания пользователя.
-     *
-     * @return дата создания
-     */
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    /**
-     * Устанавливает дату создания пользователя.
-     *
-     * @param createdAt дата создания
-     */
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 
     @Override

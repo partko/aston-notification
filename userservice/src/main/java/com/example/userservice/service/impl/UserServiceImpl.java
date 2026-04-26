@@ -10,6 +10,7 @@ import com.example.userservice.mapper.UserMapper;
 import com.example.userservice.repository.UserRepository;
 import com.example.userservice.service.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -21,18 +22,13 @@ import java.util.List;
  */
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private final UserRepository userRepository;
-
     private final UserEventProducer userEventProducer;
-
-    public UserServiceImpl(UserRepository userRepository, UserEventProducer userEventProducer) {
-        this.userRepository = userRepository;
-        this.userEventProducer = userEventProducer;
-    }
 
     @Override
     public UserResponse createUser(CreateUserRequest request) {

@@ -1,8 +1,7 @@
 package com.example.notificationservice.kafka.consumer.handler;
 
-import com.example.notificationservice.kafka.consumer.model.OperationType;
 import com.example.notificationservice.kafka.consumer.model.UserEvent;
-import com.example.notificationservice.service.EmailService;
+import com.example.notificationservice.service.UserEventHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -12,22 +11,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserEventListener {
 
-    private final EmailService emailService;
+    private final UserEventHandler handler;
 
-    public UserEventListener(EmailService emailService) {
-        this.emailService = emailService;
+    public UserEventListener(UserEventHandler handler) {
+        this.handler = handler;
     }
 
     @KafkaListener(
             topics = "${app.kafka.consumer.user-events-topic}",
             groupId = "${app.kafka.consumer.group-id}"
     )
-
     public void listen(UserEvent event) {
-        if (event.getOperation() == OperationType.CREATE) {
-            emailService.sendUserCreatedEmail(event.getEmail());
-        } else if (event.getOperation() == OperationType.DELETE) {
-            emailService.sendUserDeletedEmail(event.getEmail());
-        }
+        handler.handle(event);
     }
 }

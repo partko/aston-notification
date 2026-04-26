@@ -4,43 +4,52 @@ import com.example.userservice.controller.UserController;
 import com.example.userservice.dto.CreateUserRequest;
 import com.example.userservice.dto.UpdateUserRequest;
 import com.example.userservice.dto.UserResponse;
+import com.example.userservice.hateoas.UserModelAssembler;
 import com.example.userservice.service.UserService;
-import org.springframework.web.bind.annotation.RequestMapping;
+import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * REST-контроллер для управления пользователями.
  */
 @RestController
-@RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserControllerImpl implements UserController {
 
     private final UserService userService;
-
-    public UserControllerImpl(UserService userService) {
-        this.userService = userService;
-    }
+    private final UserModelAssembler assembler;
 
     @Override
     public UserResponse getById(Long id) {
-        return userService.getUserById(id);
+        UserResponse user = userService.getUserById(id);
+        return assembler.toModel(user);
     }
 
     @Override
-    public List<UserResponse> getAll() {
-        return userService.getAllUsers();
+    public CollectionModel<UserResponse> getAll() {
+        List<UserResponse> users = userService.getAllUsers();
+        return CollectionModel.of(
+                users.stream()
+                        .map(assembler::toModel)
+                        .toList(),
+                linkTo(methodOn(UserController.class).getAll()).withSelfRel()
+        );
     }
 
     @Override
     public UserResponse create(CreateUserRequest request) {
-        return userService.createUser(request);
+        return assembler.toModel(userService.createUser(request));
     }
 
     @Override
     public UserResponse update(Long id, UpdateUserRequest request) {
-        return userService.updateUser(id, request);
+        return assembler.toModel(userService.updateUser(id, request));
     }
 
     @Override

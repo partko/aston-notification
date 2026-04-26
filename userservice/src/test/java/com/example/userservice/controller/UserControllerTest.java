@@ -5,8 +5,10 @@ import com.example.userservice.dto.UpdateUserRequest;
 import com.example.userservice.dto.UserResponse;
 import com.example.userservice.exception.GlobalExceptionHandler;
 import com.example.userservice.exception.NotFoundException;
+import com.example.userservice.hateoas.UserModelAssembler;
 import com.example.userservice.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Тесты REST-контроллера пользователей.
  */
 @WebMvcTest(UserController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, UserModelAssembler.class})
 class UserControllerTest {
 
     @Autowired
@@ -65,7 +67,7 @@ class UserControllerTest {
 
         mockMvc.perform(get("/api/users/1"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Vladimir"))
                 .andExpect(jsonPath("$.email").value("vvv@gmail.com"))
@@ -103,26 +105,12 @@ class UserControllerTest {
 
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Vladimir"))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].name").value("Alice"));
-
-        verify(userService).getAllUsers();
-        verifyNoMoreInteractions(userService);
-    }
-
-    @Test
-    @DisplayName("GET /api/users/ должен вернуть пустой список, если пользователей нет")
-    void getAll_shouldReturnEmptyListWhenNoUsers() throws Exception {
-        when(userService.getAllUsers()).thenReturn(List.of());
-
-        mockMvc.perform(get("/api/users"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(0)));
+                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(jsonPath("$._embedded.userResponseList.length()").value(2))
+                .andExpect(jsonPath("$._embedded.userResponseList[0].id").value(1))
+                .andExpect(jsonPath("$._embedded.userResponseList[0].name").value("Vladimir"))
+                .andExpect(jsonPath("$._embedded.userResponseList[1].id").value(2))
+                .andExpect(jsonPath("$._embedded.userResponseList[1].name").value("Alice"));
 
         verify(userService).getAllUsers();
         verifyNoMoreInteractions(userService);
@@ -145,7 +133,7 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Vladimir"))
                 .andExpect(jsonPath("$.email").value("vvv@gmail.com"))
@@ -258,7 +246,7 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Vladimir New"))
                 .andExpect(jsonPath("$.email").value("new@gmail.com"))

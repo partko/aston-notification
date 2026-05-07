@@ -1,0 +1,85 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+
+          routes:
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/users/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: userServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/user-service
+
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/notifications/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: notificationServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/notification-service
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
+    registry-fetch-interval-seconds: 5
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userServiceCircuitBreaker:
+        sliding-window-size: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 2
+
+      notificationServiceCircuitBreaker:
+        sliding-window-size: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 2
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,circuitbreakers
+
+logging:
+  level:
+    root: INFO
+
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: DEBUG
+    org.springframework.cloud.gateway.route: DEBUG
+    org.springframework.cloud.gateway.filter: DEBUG
+
+    org.springframework.cloud.loadbalancer: DEBUG
+
+    com.netflix.discovery: DEBUG
+    org.springframework.cloud.netflix.eureka: DEBUG
+
+    reactor.netty: DEBUG
+    reactor.netty.http.client: DEBUG
+
+    org.springframework.web.reactive.function.client: DEBUG

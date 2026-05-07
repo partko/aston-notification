@@ -1,18 +1,6 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5433/user_service_db
-    username: postgres
-    password: postgres
+  application:
+    name: user-service
 
-  jpa:
-    hibernate:
-      ddl-auto: update
-
-server:
-  port: 8081
-
-app:
-  kafka:
-    producer:
-      bootstrap-servers: localhost:9092
-      user-events-topic: user-events
+  config:
+    import: optional:configserver:http://localhost:8888

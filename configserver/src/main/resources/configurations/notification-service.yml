@@ -6,7 +6,7 @@ spring:
     name: notification-service
 
   mail:
-    host: localhost
+    host: mailhog
     port: 1025
     username: test@example.com
     password: test
@@ -20,7 +20,7 @@ spring:
 app:
   kafka:
     consumer:
-      bootstrap-servers: localhost:9092
+      bootstrap-servers: kafka:9092
       group-id: notification-service-group
       user-events-topic: user-events
       auto-offset-reset: earliest
@@ -31,4 +31,4 @@ eureka:
     instance-id: ${spring.application.name}:${server.port}
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://discovery-server:8761/eureka/
